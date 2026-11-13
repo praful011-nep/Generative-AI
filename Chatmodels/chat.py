@@ -12,9 +12,15 @@ Model can be used in 2 ways:
 - using Model Class     -> importing a specific model class
 """
 
+"""
+Useful Parameters:
+- temperature: 0 to 1 -> higher temperature; more brainstorming
+- max_tokenss: maxmimum tokens to use
+"""
 model_groq = init_chat_model(
     "groq:openai/gpt-oss-120b",
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=os.getenv("GROQ_API_KEY"),
+    temperature=0.7
 )
 
 response = model_groq.invoke("What is Generative AI?")

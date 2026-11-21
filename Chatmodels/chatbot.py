@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=True)
@@ -14,8 +13,12 @@ model = ChatGroq(
     timeout = 40
 )
 
-prompt = input("You: ")
+print("------------Welcome (Type 0 to exit)---------------")
 
-response = model.invoke(prompt)
+while True:
+    prompt = input("You: ")
+    if prompt == '0':
+        break
+    response = model.invoke(prompt)
 
-print("Bot: ",response.content)
+    print("Bot: ",response.content)

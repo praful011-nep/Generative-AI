@@ -13,12 +13,16 @@ model = ChatGroq(
     timeout = 40
 )
 
+messages = [
+
+]
 print("------------Welcome (Type 0 to exit)---------------")
 
 while True:
     prompt = input("You: ")
+    messages.append(prompt)
     if prompt == '0':
         break
-    response = model.invoke(prompt)
-
+    response = model.invoke(messages)
+    messages.append(response.content)
     print("Bot: ",response.content)

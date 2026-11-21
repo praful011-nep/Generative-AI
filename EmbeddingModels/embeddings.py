@@ -20,3 +20,11 @@ vector1 = embeddings.embed_query("Learning GenAI")
 
 print(vector1)
 
+# For document
+texts = [
+    "Hello I am a learner",
+    "This is a GenAI tutorial"
+]
+
+vector2 = embeddings.embed_documents(texts)
+print(vector2)

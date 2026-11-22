@@ -76,4 +76,7 @@ final_prompt = prompt.invoke(
 
 response = model.invoke(final_prompt)
 
+# Strucurted output
+movie_data = parser.parse(response.content)
+
 print(response.content)

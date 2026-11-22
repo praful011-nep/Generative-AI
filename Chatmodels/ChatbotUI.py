@@ -15,16 +15,30 @@ model = ChatGroq(
 )
 
 st.title("Chatbot")
-st.caption("Welcome (Type 0 to exit)")
 
-# Stores all the prompts and responses from user and Bot side (short term memory)
-# st.session_state keeps it alive across Streamlit reruns
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        SystemMessage(content="You are a Data Science Tutor.")
-    ]
+# Choose the Chatmodel response mode
+MODES = {
+    "Angry mode": "You are a Angry AI agent. Your respond aggresively and impatiently",
+    "Funny mode": "You are a very funny AI agent. You respond with humor and jokes. ",
+    "Sad mode": "You are a very sad AI agent. You respond in a depressed and emotional tone.",
+    "Simple chatbot": "You are a simple chatbot.",
+}
+
 if "ended" not in st.session_state:
     st.session_state.ended = False
+
+# Mode selection screen (shown until a mode is chosen)
+if "messages" not in st.session_state:
+    st.subheader("Choose your AI mode:")
+    choice = st.radio("Mode", list(MODES.keys()), index=1, label_visibility="collapsed")
+    if st.button("Start"):
+        # Stores all the prompts and responses from user and Bot side (short term memory)
+        # st.session_state keeps it alive across Streamlit reruns
+        st.session_state.messages = [SystemMessage(content=MODES[choice])]
+        st.rerun()
+    st.stop()
+
+st.caption("Welcome (Type 0 to exit)")
 
 # Show conversation so far (skip the system message)
 for msg in st.session_state.messages:

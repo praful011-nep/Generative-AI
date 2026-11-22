@@ -69,7 +69,9 @@ para = input("Give your paragraph: ")
 
 # prompt is invoked and paragraph is filled by value of para
 final_prompt = prompt.invoke(
-    {'paragraph': para}
+    {'paragraph': para,
+     'format_instruction': parser.get_format_instructions()
+    }
 )
 
 response = model.invoke(final_prompt)

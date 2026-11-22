@@ -35,9 +35,11 @@ if "messages" not in st.session_state:
         # Stores all the prompts and responses from user and Bot side (short term memory)
         # st.session_state keeps it alive across Streamlit reruns
         st.session_state.messages = [SystemMessage(content=MODES[choice])]
+        st.session_state.mode = choice
         st.rerun()
     st.stop()
 
+st.markdown(f"**Mode:** {st.session_state.mode}")
 st.caption("Welcome (Type 0 to exit)")
 
 # Show conversation so far (skip the system message)

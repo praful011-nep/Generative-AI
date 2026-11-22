@@ -51,6 +51,20 @@ from langchain_core.prompts import ChatPromptTemplate
 #     ("human", "Here is the movie description:\n{paragraph}")
 # ])
 # paragraph is filled by the user
+
+
+prompt = ChatPromptTemplate(
+    (
+        'system', '''
+Extract movie information form the paragraph
+{format_instructions}
+'''
+),
+(
+    'human', '''{paragraph}'''
+)
+)
+
 para = input("Give your paragraph: ")
 
 # prompt is invoked and paragraph is filled by value of para

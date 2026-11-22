@@ -39,5 +39,9 @@ para = input("Give your paragraph: ")
 
 # prompt is invoked and paragraph is filled by value of para
 final_prompt = prompt.invoke(
-    {'pragraph': para}
+    {'paragraph': para}
 )
+
+response = model.invoke(final_prompt)
+
+print(response.content)

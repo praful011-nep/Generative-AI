@@ -35,3 +35,9 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", "Here is the movie description:\n{paragraph}")
 ])
 # paragraph is filled by the user
+para = input("Give your paragraph: ")
+
+# prompt is invoked and paragraph is filled by value of para
+final_prompt = prompt.invoke(
+    {'pragraph': para}
+)

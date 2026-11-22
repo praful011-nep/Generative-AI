@@ -53,7 +53,7 @@ from langchain_core.prompts import ChatPromptTemplate
 # paragraph is filled by the user
 
 
-prompt = ChatPromptTemplate(
+prompt = ChatPromptTemplate([
     (
         'system', '''
 Extract movie information form the paragraph
@@ -63,14 +63,14 @@ Extract movie information form the paragraph
 (
     'human', '''{paragraph}'''
 )
-)
+])
 
 para = input("Give your paragraph: ")
 
 # prompt is invoked and paragraph is filled by value of para
 final_prompt = prompt.invoke(
     {'paragraph': para,
-     'format_instruction': parser.get_format_instructions()
+     'format_instructions': parser.get_format_instructions()
     }
 )
 

@@ -18,9 +18,28 @@ model = ChatGroq(
 
     langchain provides 'message' to handle that
 '''
-# Stores all the proompts and responses from user and Bot side (short term memory)
+# Stores all the prompts and responses from user and Bot side (short term memory)
+
+# Choose the CHatmodel response mode
+print("Choose your AI mode: ")
+print("press 1 for Angry mode")
+print("press 2 for funny mode")
+print("press 3 for sad mode")
+
+choice = int(input("Enter your choice: "))
+
+if choice == 1:
+    mode = 'You are a Angry AI agent. Your respond aggresively and impatiently'
+elif choice == 2:
+    mode = "You are a very funny AI agent. You respond with humor and jokes. "
+elif choice == 3:
+    mode = '"You are a very sad AI agent. You respond in a depressed and emotional tone.'
+else:
+    mode = 'You are a simple chatbot.'
+    print("Invalid Choice. Must be (1/ 2/ 3). System selected to simple Chatbot ")
+
 messages = [
-    SystemMessage(content='You are a funny AI agent.')
+    SystemMessage(content = mode)
 ]
 print("------------Welcome (Type 0 to exit)---------------")
 

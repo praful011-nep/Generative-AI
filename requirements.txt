@@ -10,6 +10,7 @@ python-dotenv
 faiss-cpu
 tiktoken
 fastapi
+pydantic
 uvicorn
 requests
 langchain_huggingface

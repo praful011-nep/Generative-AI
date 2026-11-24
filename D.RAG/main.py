@@ -10,6 +10,3 @@ model = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY "), 
     timeout = 40
 )
-
-response = model.invoke('What is RAG?')
-print(response.content)

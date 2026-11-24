@@ -11,3 +11,5 @@ docs = data.load()
 
 # To see content of specific page
 print(docs[21].page_content)
+
+# Note: Since AI model cannot have infinite context window chunking is used to split the text for prompt

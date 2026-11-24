@@ -1,0 +1,229 @@
+**RAG = Retrieval‑Augmented Generation**
+
+Retrieval‑Augmented Generation (RAG) is a hybrid AI architecture that combines **information retrieval** with **generative language modeling**. Instead of relying solely on the knowledge stored inside a large language model (LLM), RAG first fetches relevant external documents (or chunks of text) and then conditions the generation step on those retrieved pieces. This gives the system up‑to‑date, factual, and domain‑specific answers while still benefiting from the fluency of a generative model.
+
+---
+
+## 1. Core Components
+
+| Component | What it does | Typical technology |
+|-----------|--------------|--------------------|
+| **Retriever** | Searches a knowledge source (vector DB, BM25 index, search engine) for the most relevant passages given a query. | • Dense embeddings (e.g., FAISS, Milvus, Pinecone)  <br>• Sparse lexical models (BM25, ElasticSearch)  <br>• Hybrid (dense + sparse) |
+| **Reader / Generator** | Takes the original query **plus** the retrieved passages and produces a final answer. | • LLM (GPT‑4, LLaMA‑2, Claude, etc.) <br>• Instruction‑tuned models (e.g., Flan‑T5, Mistral‑Instruct) |
+| **Knowledge Store** | The corpus that the retriever searches. Can be static (Wikipedia dump) or dynamic (company docs, news feed). | • Plain text files <br>• PDFs, HTML, code repos <br>• Structured data (tables, JSON) |
+| **Fusion / Scoring Layer** (optional) | Merges multiple retrieved passages, ranks them, or extracts the most useful snippets before feeding to the generator. | • Rerankers (cross‑encoders, mono‑encoders) <br>• Max‑p, top‑k, or “attention‑based” fusion |
+
+---
+
+## 2. How the RAG Pipeline Works (step‑by‑step)
+
+1. **User query** → *e.g.*, “What were the main causes of the 2008 financial crisis?”
+2. **Embedding / indexing**: The query is encoded (dense vector) and/or tokenized for lexical search.
+3. **Retrieval**: The retriever returns *k* most relevant documents/chunks (e.g., 5–20 passages).
+4. **(Optional) Reranking**: A stronger cross‑encoder re‑orders the *k* results to improve relevance.
+5. **Prompt construction**: The original query is combined with the retrieved texts, often with a system‑level instruction. Example format:  
+
+   ```
+   System: You are a helpful finance expert. Use only the provided sources.
+   User: What were the main causes of the 2008 financial crisis?
+   Sources:
+   1. <passage 1>
+   2. <passage 2>
+   ...
+   Answer:
+   ```
+6. **Generation**: The LLM reads the prompt and produces a response, grounding it in the supplied sources.
+7. **Post‑processing** (optional): Cite sources, verify factual consistency, filter profanity, etc.
+
+---
+
+## 3. Why Use RAG?
+
+| Benefit | Explanation |
+|---------|-------------|
+| **Up‑to‑date knowledge** | The LLM can stay “fresh” by pulling from a constantly refreshed corpus (e.g., news articles, internal tickets). |
+| **Reduced hallucinations** | Grounding the answer in actual text lowers the chance of fabricating facts. |
+| **Domain specialization** | You can inject proprietary or niche data without retraining the whole model. |
+| **Parameter efficiency** | Instead of training a massive model on every new document, you just add the doc to the index. |
+| **Explainability** | The retrieved passages can be shown as citations, increasing trust. |
+
+---
+
+## 4. Common Variants & Extensions
+
+| Variant | Key Idea |
+|---------|----------|
+| **Fusion‑in‑Decoder (FiD)** | The generator receives each retrieved passage as a separate “segment” and attends to them jointly in the decoder. |
+| **RAG‑Token / RAG‑Sequence (from Facebook AI)** | *RAG‑Token*: token‑level mixture of retrieved passages; *RAG‑Sequence*: generate one passage at a time, then combine. |
+| **Hybrid Retrieval** | Combine dense embeddings with BM25 scores (e.g., `score = α·dense + (1‑α)·BM25`). |
+| **Multi‑Modal RAG** | Retrieve images, tables, or audio clips and feed them to a multimodal generator (e.g., LLaVA, Flamingo). |
+| **Self‑RAG / Auto‑RAG** | The model itself generates a “search query” internally before performing retrieval (useful when the user query is ambiguous). |
+| **Tool‑augmented RAG** | After generation, call external APIs (SQL, calculators) to refine or verify the answer. |
+
+---
+
+## 5. Typical Use Cases
+
+| Domain | Example |
+|--------|---------|
+| **Enterprise Knowledge Bases** | Answer employee questions using internal wiki, SOPs, and ticket logs. |
+| **Customer Support** | Retrieve relevant troubleshooting guides and compose a personalized reply. |
+| **Legal / Compliance** | Pull statutes, case law, or policy documents to draft a brief. |
+| **Healthcare** | Look up drug interaction tables, clinical guidelines, and generate patient‑friendly explanations. |
+| **Education** | Search textbooks, lecture notes, and produce concise study summaries. |
+| **Search Engines** | Provide a direct answer (snippet) rather than a list of links. |
+
+---
+
+## 6. Implementation Sketch (Python)
+
+Below is a minimal, end‑to‑end example using **OpenAI embeddings**, **FAISS**, and **GPT‑4**. Replace components with your own stack (e.g., HuggingFace dense encoders, Milvus, Claude) as needed.
+
+```python
+import os, json, faiss, openai
+from tqdm import tqdm
+from typing import List
+
+# -------------------------------------------------
+# 1️⃣  Load / embed the corpus (run once)
+# -------------------------------------------------
+def load_corpus(path: str) -> List[str]:
+    """Load plain‑text documents from a folder."""
+    docs = []
+    for fname in os.listdir(path):
+        if fname.endswith('.txt'):
+            with open(os.path.join(path, fname), 'r', encoding='utf8') as f:
+                docs.append(f.read())
+    return docs
+
+def embed_texts(texts: List[str]) -> List[List[float]]:
+    """Batch embed using OpenAI's ada‑002 (or any other embedding model)."""
+    batch_size = 1000
+    embeddings = []
+    for i in tqdm(range(0, len(texts), batch_size)):
+        batch = texts[i:i+batch_size]
+        resp = openai.Embedding.create(
+            model="text-embedding-ada-002",
+            input=batch
+        )
+        embeddings.extend([r['embedding'] for r in resp['data']])
+    return embeddings
+
+def build_faiss_index(embeds: List[List[float]]) -> faiss.IndexFlatIP:
+    dim = len(embeds[0])
+    index = faiss.IndexFlatIP(dim)   # inner product (cosine after normalization)
+    faiss.normalize_L2(np.array(embeds))
+    index.add(np.array(embeds).astype('float32'))
+    return index
+
+# -------------------------------------------------
+# 2️⃣  Retrieval function
+# -------------------------------------------------
+def retrieve(query: str, index: faiss.IndexFlatIP,
+             docs: List[str], k: int = 5) -> List[str]:
+    q_emb = openai.Embedding.create(
+        model="text-embedding-ada-002",
+        input=[query]
+    )['data'][0]['embedding']
+    q_emb = np.array(q_emb).astype('float32')
+    faiss.normalize_L2(q_emb.reshape(1, -1))
+    D, I = index.search(q_emb.reshape(1, -1), k)
+    return [docs[i] for i in I[0]]
+
+# -------------------------------------------------
+# 3️⃣  Prompt construction & generation
+# -------------------------------------------------
+def rag_prompt(query: str, sources: List[str]) -> str:
+    src_formatted = "\n".join(f"{i+1}. {s}" for i, s in enumerate(sources))
+    return f"""You are a knowledgeable assistant. Answer the question using ONLY the information below. Cite the source numbers in your answer.
+
+Question: {query}
+
+Sources:
+{src_formatted}
+
+Answer:"""
+
+def generate_answer(prompt: str) -> str:
+    resp = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.0,
+        max_tokens=500
+    )
+    return resp.choices[0].message.content.strip()
+
+# -------------------------------------------------
+# 4️⃣  End‑to‑end wrapper
+# -------------------------------------------------
+def rag_qa(query: str, index, docs) -> str:
+    sources = retrieve(query, index, docs, k=5)
+    prompt = rag_prompt(query, sources)
+    answer = generate_answer(prompt)
+    return answer
+
+# -------------------------------------------------
+# Example usage (run once to build index)
+# -------------------------------------------------
+if __name__ == "__main__":
+    import numpy as np, json, pathlib
+    corpus_path = "data/wiki_articles"
+    docs = load_corpus(corpus_path)
+    embeds = embed_texts(docs)
+    index = build_faiss_index(embeds)
+
+    # Save for later
+    faiss.write_index(index, "wiki.index")
+    pathlib.Path("docs.json").write_text(json.dumps(docs))
+
+    # Query
+    q = "What are the main causes of the 2008 financial crisis?"
+    print(rag_qa(q, index, docs))
+```
+
+**Key takeaways from the code**
+
+* **Separate indexing** – you only embed once; updates are incremental (add new vectors, delete old ones).
+* **Normalization** → inner‑product similarity ≈ cosine.
+* **Prompt engineering** – the “use ONLY the provided sources” instruction dramatically reduces hallucination.
+* **Zero‑temperature** (deterministic) generation is common for factual QA; you can raise temperature for more creative tasks.
+
+---
+
+## 7. Practical Tips & Best Practices
+
+| Area | Recommendation |
+|------|----------------|
+| **Chunking** | Split long documents into 200‑300‑word passages with overlap (e.g., 50 words) to preserve context while keeping retrieval efficient. |
+| **Metadata** | Store titles, URLs, timestamps, and tags alongside each passage; they can be used for filtering (`date > 2023`) or citation formatting. |
+| **Reranking** | Even a cheap mono‑encoder (e.g., MiniLM‑L6‑v2) can boost top‑k relevance; cross‑encoders are best for 10‑20 candidates. |
+| **Citation style** | Append `[source #]` tokens during generation, then replace them with actual URLs or document titles post‑hoc. |
+| **Evaluation** | Use **retrieval metrics** (Recall@k) and **generation metrics** (Exact Match, F1, Faithfulness scores like `FactCC` or `Q²`). Human evaluation remains gold standard. |
+| **Safety** | Filter retrieved passages for PII or copyrighted content before feeding to the generator. |
+| **Scalability** | For >10M passages, move from FAISS flat indexes to IVF‑PQ or HNSW; consider a hybrid architecture where a cheap BM25 filter narrows candidates before dense retrieval. |
+| **Versioning** | Keep a snapshot of the index and the underlying corpus; this enables reproducibility and audit trails. |
+| **Latency** | Parallelize embedding of query and retrieval; cache frequent queries; use async calls to LLM APIs. |
+| **Tooling** | Libraries that already implement RAG pipelines: <br>• **LangChain** (`RetrievalQAChain`) <br>• **Haystack** (`Retriever`, `Generator`) <br>• **LlamaIndex** (`VectorStoreIndex`) <br>• **OpenAI Assistants API** (built‑in retrieval). |
+
+---
+
+## 8. Limitations & Open Challenges
+
+| Challenge | Why it matters | Current mitigations |
+|-----------|----------------|---------------------|
+| **Hallucination despite retrieval** | The generator may still invent facts or ignore sources. | Use strict prompting, low temperature, and post‑generation fact‑checking (e.g., `self‑ask` loops). |
+| **Stale or contradictory sources** | If the knowledge base contains outdated info, the answer may be wrong. | Version timestamps, rank by recency, or combine with a freshness filter. |
+| **Scalability of dense retrieval** | Very large corpora (hundreds of millions) need sophisticated indexing. | IVF‑PQ, HNSW, or hybrid retrieval; sharding across nodes. |
+| **Multilingual retrieval** | Embeddings may be language‑biased. | Use multilingual encoders (e.g., `mxbai-embed-large-v1`) or language‑specific indexes. |
+| **Evaluation of grounding** | Measuring “how well the answer follows the sources” is non‑trivial. | Use metrics like **Citation Precision**, **Answer‑Source Alignment**, or human‑in‑the‑loop scoring. |
+| **Privacy** | Sending proprietary documents to third‑party APIs can be risky. | Run embedding & generation on‑premises, or use encrypted inference (e.g., OpenAI’s private endpoints). |
+
+---
+
+## 9. Quick “Cheat Sheet” for Building a RAG System
+
+| Step | Action | Tools / Example |
+|------|--------|-----------------|
+| 1️⃣ | **Collect data** | PDFs, Confluence pages, GitHub README, news RSS |
+| 2️⃣ | **Pre‑process** (clean, split, add metadata) | `tiktoken`, `nltk`, custom script |
+| 3️⃣ | **Embed** | OpenAI `text-embedding-ada-002`, `sentence‑transformers`, `Instructor‑Embedding` |

@@ -1,8 +1,22 @@
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
+import warnings 
+warnings.filterwarnings('ignore')
+from langchain_community.document_loaders import TextLoader
+from langchain_core.prompts import ChatPromptTemplate
+
 
 load_dotenv()
+
+# Document Object
+data = TextLoader(
+    r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\RAG noted GROQ.txt",
+    encoding='utf-8'
+)
+# Loaded Object content
+docs = data.load()
+
 
 # Initialize model using API keu
 model = ChatGroq(

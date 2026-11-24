@@ -17,7 +17,11 @@ data = TextLoader(
 # Loaded Object content
 docs = data.load()
 
-
+# Create a prompt template
+ChatPromptTemplate.from_messages([
+    ('system','Your are a AI that summarizes text.'),
+    ('human','{data}')
+])
 # Initialize model using API keu
 model = ChatGroq(
     model="openai/gpt-oss-120b", 

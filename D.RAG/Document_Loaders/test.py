@@ -16,5 +16,19 @@ from langchain_community.document_loaders import TextLoader
 '''
 
 # Create Text Loader object and provide file path
-data = TextLoader("RAG noted GROQ")
+# data is first in object form
+data = TextLoader(
+    r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\RAG noted GROQ.txt",
+    encoding='utf-8'
+)
 print(data)
+
+#.load() -> returns meta data and page content
+docs = data.load() 
+
+# Returns first document
+'''
+    .page_content -> only return page_content
+'''
+print(docs[0])
+

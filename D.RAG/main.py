@@ -18,13 +18,17 @@ data = TextLoader(
 docs = data.load()
 
 # Create a prompt template
-ChatPromptTemplate.from_messages([
+template = ChatPromptTemplate.from_messages([
     ('system','Your are a AI that summarizes text.'),
     ('human','{data}')
 ])
+
+# Insert document content in prompt
+prompt = template.format_messages(data = docs[0].page_content)
+
 # Initialize model using API keu
 model = ChatGroq(
     model="openai/gpt-oss-120b", 
-    api_key=os.getenv("GROQ_API_KEY "), 
+    api_key=os.getenv("GROQ_API_KEY"), 
     timeout = 40
 )

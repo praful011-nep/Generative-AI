@@ -4,18 +4,24 @@ from langchain_groq import ChatGroq
 import warnings 
 warnings.filterwarnings('ignore')
 from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.prompts import ChatPromptTemplate
 
 
 load_dotenv()
 
 # Document Object
-data = TextLoader(
+datatxt = TextLoader(
     r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\RAG noted GROQ.txt",
     encoding='utf-8'
 )
+
+datapddf = PyPDFLoader(r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\Chapter9IntroductiontoMLRegression1_985a1194-056b-43c1-af86-bfa0dca9969a_268917_.pdf")
+
 # Loaded Object content
-docs = data.load()
+docstxt = datatxt.load()
+docspdf = datapddf.load()
+
 
 # Create a prompt template
 template = ChatPromptTemplate.from_messages([
@@ -24,7 +30,9 @@ template = ChatPromptTemplate.from_messages([
 ])
 
 # Insert document content in prompt
-prompt = template.format_messages(data = docs[0].page_content)
+prompttxt = template.format_messages(data = docstxt[0].page_content)
+promptpdf = template.format_messages(data = docspdf[0].page_content)
+
 
 # Initialize model using API keu
 model = ChatGroq(
@@ -33,5 +41,5 @@ model = ChatGroq(
     timeout = 40
 )
 
-result = model.invoke(prompt)
+result = model.invoke(promptpdf)
 print(result.content)

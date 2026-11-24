@@ -21,7 +21,7 @@ data = TextLoader(
     r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\RAG noted GROQ.txt",
     encoding='utf-8'
 )
-print(data)
+# print(data)
 
 #.load() -> returns meta data and page content
 docs = data.load() 
@@ -29,6 +29,7 @@ docs = data.load()
 # Returns first document
 '''
     .page_content -> only return page_content
+    .metadata -> only return metadata
 '''
-print(docs[0])
+print(docs[0].page_content)
 

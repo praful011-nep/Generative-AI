@@ -5,6 +5,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.prompts import ChatPromptTemplate
 
 
@@ -18,9 +19,13 @@ datatxt = TextLoader(
 
 datapddf = PyPDFLoader(r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\Chapter9IntroductiontoMLRegression1_985a1194-056b-43c1-af86-bfa0dca9969a_268917_.pdf")
 
+url = 'https://www.gsmarena.com/google_pixel_11_pro_5g-14801.php'
+dataurl = WebBaseLoader(url)
+
 # Loaded Object content
 docstxt = datatxt.load()
 docspdf = datapddf.load()
+docsurl = dataurl.load()
 
 
 # Create a prompt template
@@ -32,6 +37,7 @@ template = ChatPromptTemplate.from_messages([
 # Insert document content in prompt
 prompttxt = template.format_messages(data = docstxt[0].page_content)
 promptpdf = template.format_messages(data = docspdf[0].page_content)
+prompturl = template.format_messages(data = docsurl[0].page_content)
 
 
 # Initialize model using API keu
@@ -41,5 +47,5 @@ model = ChatGroq(
     timeout = 40
 )
 
-result = model.invoke(promptpdf)
+result = model.invoke(prompturl)
 print(result.content)

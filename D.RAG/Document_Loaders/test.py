@@ -23,7 +23,7 @@ data = TextLoader(
 )
 # print(data)
 
-#.load() -> returns meta data and page content
+#.load() -> reads meta data and page content
 docs = data.load() 
 
 # Returns first document

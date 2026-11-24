@@ -32,3 +32,6 @@ model = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"), 
     timeout = 40
 )
+
+result = model.invoke(prompt)
+print(result.content)

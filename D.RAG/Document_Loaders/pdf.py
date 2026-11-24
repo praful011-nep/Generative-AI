@@ -1,3 +1,7 @@
+'''
+            WORKIGN WITH PDFS
+'''
+
 import warnings
 warnings.filterwarnings('ignore')
 from langchain_community.document_loaders import PyPDFLoader

@@ -1,5 +1,5 @@
 '''
-    Loads contents of webpage using URl
+                    WORKING WITH WEB PAGES
 '''
 from langchain_community.document_loaders import WebBaseLoader
 

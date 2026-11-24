@@ -1,3 +1,7 @@
+'''
+                WORKING WITH TEXT DOCUMENT
+'''
+
 # To not show warnings during output
 import warnings
 warnings.filterwarnings('ignore')

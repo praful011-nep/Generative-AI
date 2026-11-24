@@ -1,17 +1,70 @@
+
+# ==========================================
+# 1. LangChain Ecosystem
+# ==========================================
 langchain
 langchain-core
 langchain-community
+langchain-classic
+langchain-text-splitters
 langgraph
+langsmith
+
+# ==========================================
+# 2. LLM Providers
+# ==========================================
 langchain-openai
 langchain-google-genai
 langchain-groq
 langchain-mistralai
-python-dotenv
-faiss-cpu
+langchain-huggingface
+
+# ==========================================
+# 3. Embeddings and NLP
+# ==========================================
+sentence-transformers
+transformers
 tiktoken
+
+# ==========================================
+# 4. Vector Databases
+# ==========================================
+faiss-cpu
+chromadb
+langchain-chroma
+langchain-postgres
+pgvector
+
+# ==========================================
+# 5. Document Loading and Processing
+# ==========================================
+pypdf
+pymupdf
+python-docx
+docx2txt
+beautifulsoup4
+lxml
+unstructured
+
+# ==========================================
+# 6. Retrieval and Reranking
+# ==========================================
+rank-bm25
+cohere
+
+# ==========================================
+# 7. Backend Development
+# ==========================================
 fastapi
-pydantic
 uvicorn
+pydantic
+python-multipart
 requests
-langchain_huggingface
+sqlalchemy
+psycopg[binary]
+
+# ==========================================
+# 8. Frontend / Environment
+# ==========================================
 streamlit
+python-dotenv

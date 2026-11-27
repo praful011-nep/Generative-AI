@@ -14,3 +14,19 @@ data = TextLoader(
 docs = data.load() 
 
 # print(docs[0].page_content)
+
+# Import CharacterTextSplitter to split documents into smaller chunks
+from langchain_text_splitters import CharacterTextSplitter
+
+'''
+    Create a text splitter with chunk size and overlap
+    - chunk_size: Defines the maximum number of characters allowed in   each text chunk.
+    - chunk_overlap: Defines the number of characters repeated between consecutive chunks to preserve context.
+'''
+
+#Create splitter object
+splitter = CharacterTextSplitter(
+    chunk_size = 10,
+    chunk_overlap = 1 
+)
+

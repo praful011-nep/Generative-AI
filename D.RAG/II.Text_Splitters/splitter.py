@@ -30,3 +30,7 @@ splitter = CharacterTextSplitter(
     chunk_overlap = 1 
 )
 
+# Split the loaded documents into smaller chunks
+chunks = splitter.split_documents(docs)
+
+print(len(chunks))

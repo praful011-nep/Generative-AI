@@ -36,6 +36,7 @@ docs = data.load()
 # NOTE: For deeplearning.pdf the entire pdf is not accepted by model due
 #       to token limit (Chunking is done)
 # Then embeddings are created of the chunks and stored in a database i.e. VectorDB 
+# When a user gives query, the embedding of the query is checked with the Embedding of the vector database and the similar embedding sent to LLM
 splitter = RecursiveCharacterTextSplitter(
     chunk_size = 1000,
     chunk_overlap = 200

@@ -10,7 +10,7 @@ from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.prompts import ChatPromptTemplate
-
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
 
@@ -33,6 +33,12 @@ docspdf = datapddf.load()
 docsurl = dataurl.load()
 docs = data.load()
 
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size = 1000,
+    chunk_overlap = 200
+)
+
+chunks = splitter.split_documents(docs)
 
 # Create a prompt template
 template = ChatPromptTemplate.from_messages([
@@ -46,7 +52,7 @@ promptpdf = template.format_messages(data = docspdf[0].page_content)
 prompturl = template.format_messages(data = docsurl[0].page_content)
 prompt = template.format_messages(data= docs)
 
-# Initialize model using API keu
+# Initialize model using API key
 model = ChatGroq(
     model="openai/gpt-oss-120b", 
     api_key=os.getenv("GROQ_API_KEY"), 
@@ -55,3 +61,5 @@ model = ChatGroq(
 
 result = model.invoke(prompt)
 print(result.content)
+# NOTE: For deeplearning.pdf the entire pdf is not accepted by model due
+#       to token limit (Chunking is done)

@@ -16,4 +16,13 @@ data = PyPDFLoader(r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\C
 
 docs = data.load()
 
- 
+from langchain_text_splitters import TokenTextSplitter
+
+splitter = TokenTextSplitter(
+    chunk_size = 100,
+    chunk_overlap = 1
+)
+
+chunks = splitter.split_documents(docs)
+
+print(len(chunks))

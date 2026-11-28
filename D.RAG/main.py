@@ -33,6 +33,9 @@ docspdf = datapddf.load()
 docsurl = dataurl.load()
 docs = data.load()
 
+# NOTE: For deeplearning.pdf the entire pdf is not accepted by model due
+#       to token limit (Chunking is done)
+# Then embeddings are created of the chunks and stored in a database i.e. VectorDB 
 splitter = RecursiveCharacterTextSplitter(
     chunk_size = 1000,
     chunk_overlap = 200
@@ -61,5 +64,3 @@ model = ChatGroq(
 
 result = model.invoke(prompt)
 print(result.content)
-# NOTE: For deeplearning.pdf the entire pdf is not accepted by model due
-#       to token limit (Chunking is done)

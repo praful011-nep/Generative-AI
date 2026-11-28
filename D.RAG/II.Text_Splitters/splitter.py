@@ -17,19 +17,25 @@ docs = data.load()
 
 # Import CharacterTextSplitter to split documents into smaller chunks
 from langchain_text_splitters import CharacterTextSplitter
-
+'''
+    - Character-based splitting is the simplest method of text splitting.
+    - It divides a large document into smaller chunks based on the number of
+    characters, without understanding words, tokens, or meaning.
+'''
 '''
     Create a text splitter with chunk size and overlap
-    - chunk_size: Defines the maximum number of characters allowed in   each text chunk.
+    - chunk_size: Defines the maximum number of characters allowed in each text chunk.
     - chunk_overlap: Defines the number of characters repeated between consecutive chunks to preserve context.
+    - By default chunking is done based on a empty line "/n/n"
+    - seperator is used to set based on desired format
 '''
 
 #Create splitter object
 splitter = CharacterTextSplitter(
+    separator = "",
     chunk_size = 10,
     chunk_overlap = 1 
 )
-
 # Split the loaded documents into smaller chunks
 chunks = splitter.split_documents(docs)
 

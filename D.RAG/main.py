@@ -25,10 +25,13 @@ datapddf = PyPDFLoader(r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loade
 url = 'https://www.gsmarena.com/google_pixel_11_pro_5g-14801.php'
 dataurl = WebBaseLoader(url)
 
+data= PyPDFLoader(r"C:\Users\prafu\Music\Generative-AI\D.RAG\Document_Loaders\deeplearning.pdf")
+
 # Loaded Object content
 docstxt = datatxt.load()
 docspdf = datapddf.load()
 docsurl = dataurl.load()
+docs = data.load()
 
 
 # Create a prompt template
@@ -41,7 +44,7 @@ template = ChatPromptTemplate.from_messages([
 prompttxt = template.format_messages(data = docstxt[0].page_content)
 promptpdf = template.format_messages(data = docspdf[0].page_content)
 prompturl = template.format_messages(data = docsurl[0].page_content)
-
+prompt = template.format_messages(data= docs)
 
 # Initialize model using API keu
 model = ChatGroq(
@@ -50,5 +53,5 @@ model = ChatGroq(
     timeout = 40
 )
 
-result = model.invoke(prompturl)
+result = model.invoke(prompt)
 print(result.content)
